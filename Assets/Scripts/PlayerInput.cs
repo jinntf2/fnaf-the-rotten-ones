@@ -5,24 +5,32 @@ using UnityEngine;
 public class PlayerInput : MonoBehaviour
 {
     [SerializeField] private Camera cam;
-    [SerializeField] private float Sensibility;
+    [SerializeField, Range(1, 10)] private float SensibilityMultiplier;
+    [SerializeField, Range(0, -90)] private float minClampY;
+    [SerializeField, Range(0, 90)] private float maxClampY;
+    [SerializeField, Range(0, -180)] private float minClampX;
+    [SerializeField, Range(0, 180)] private float maxClampX;
     private float xRotation;
     private float yRotation;
 
     private void Awake() {
-        if(cam != null)
-            cam = GetComponentInChildren<Camera>();
+        cam = GetComponentInChildren<Camera>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     void Update()
     {
-        float x = Input.GetAxis("Mouse X") * Sensibility * Time.deltaTime;
-        float y = Input.GetAxis("Mouse Y") * Sensibility * Time.deltaTime;
+        float x = Input.GetAxis("Mouse X") * SensibilityMultiplier;
+        float y = Input.GetAxis("Mouse Y") * SensibilityMultiplier;
 
         xRotation -= y;
-        yRotation -= x;
-        transform.rotation = Quaternion.Euler(xRotation, -yRotation, 0f);
+        xRotation = Mathf.Clamp(xRotation, minClampY, maxClampY);
+
+        yRotation += x;
+        yRotation = Mathf.Clamp(yRotation, minClampX, maxClampX);
+
+        cam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
+
     }
 }
